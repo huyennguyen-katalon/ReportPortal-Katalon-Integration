@@ -79,7 +79,7 @@ public class ReportPortalListener extends BaseListener implements ExecutionListe
 		this.context.collectIssues()
 		def stepId = this.context.getItem()
 		afterTestClosure = {
-			testItem.finishTestStep(stepId, this.getTestCaseStatus(testInfo))
+			testItem.finishTestStep(stepId, this.getLastTestCaseStatus(testInfo))
 			this.createErrorSteps(stepId)
 			this.createLogSteps(stepId)
 			this.createFullStackTraceLog(testInfo, stepId)
@@ -177,7 +177,11 @@ public class ReportPortalListener extends BaseListener implements ExecutionListe
 		return testName
 	}
 
-	private getTestCaseStatus(InternalTestCaseContext testCase) {
+	private getLastTestCaseStatus(InternalTestCaseContext testCase) {
+		String message = testCase.message;
+		if (testCase.retryIndex > 0 && (message.contains("FAILED") || message.contains("ERROR"))) {
+			return "FAILED"
+		}
 		return testCase.getTestCaseStatus()
 	}
 }
